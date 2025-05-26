@@ -9,7 +9,8 @@ from database.models import CountryModel, GenreModel, ActorModel, LanguageModel
 
 from schemas.movies import (
     MovieListResponseSchema,
-    MovieDetailResponseSchema, MovieCreateSchema,
+    MovieDetailResponseSchema,
+    MovieCreateSchema,
 )
 
 router = APIRouter()
