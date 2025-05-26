@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -10,7 +10,7 @@ from database.models import CountryModel, GenreModel, ActorModel, LanguageModel
 from schemas.movies import (
     MovieListResponseSchema,
     MovieDetailResponseSchema,
-    MovieCreateSchema,
+    MovieCreateSchema, MovieUpdateSchema,
 )
 
 router = APIRouter()
@@ -79,7 +79,6 @@ async def create_movie(
             detail=f"A movie with the name '{movie.name}' "
                    f"and release date '{movie.date}' already exists."
         )
-    print(movie.languages[0])
 
     country = await db.execute(
         select(CountryModel).where(CountryModel.code == movie.country))
@@ -182,9 +181,9 @@ async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
         )
     await db.delete(movie)
     await db.commit()
-    raise HTTPException(
+    return Response(
         status_code=status.HTTP_204_NO_CONTENT,
-        detail="Movie was deleted successfully."
+        content="Movie was deleted successfully."
     )
 
 
@@ -194,13 +193,13 @@ async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
 )
 async def update_movie(
     movie_id: int,
-    update_data: dict,
+    update_data: MovieUpdateSchema,
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
         select(MovieModel).where(MovieModel.id == movie_id)
     )
-    movie = result.scalars().first()
+    movie = result.scalar_one_or_none()
 
     if not movie:
         raise HTTPException(
@@ -208,7 +207,7 @@ async def update_movie(
             detail="Movie with the given ID was not found."
         )
 
-    for key, value in update_data.items():
+    for key, value in update_data.model_dump(exclude_unset=True).items():
         setattr(movie, key, value)
     await db.commit()
     await db.refresh(movie)

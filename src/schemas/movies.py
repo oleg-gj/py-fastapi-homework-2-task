@@ -68,3 +68,21 @@ class MovieListResponseSchema(BaseModel, ConfigMixin):
     next_page: Optional[str]
     total_pages: int
     total_items: int
+
+
+class MovieUpdateSchema(BaseModel):
+    name: Optional[str] = Field(None, max_length=255)
+    date: Optional[datetime.date] = None
+    score: Optional[float] = Field(None, ge=0, le=100)
+    overview: Optional[str] = None
+    status: Optional[
+        Literal[
+            "Released", "Post Production", "In Production"
+        ]
+    ] = None
+    budget: Optional[float] = Field(None, ge=0)
+    revenue: Optional[float] = Field(None, ge=0)
+    country: Optional[str] = Field(None, min_length=3, max_length=3)
+    genres: Optional[list[str]] = None
+    actors: Optional[list[str]] = None
+    languages: Optional[list[str]] = None
