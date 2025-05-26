@@ -181,10 +181,7 @@ async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
         )
     await db.delete(movie)
     await db.commit()
-    return Response(
-        status_code=status.HTTP_204_NO_CONTENT,
-        content="Movie was deleted successfully."
-    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.patch(
